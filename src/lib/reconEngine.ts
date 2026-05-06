@@ -2225,12 +2225,18 @@ export type ModuleCallback = (name: string, status: ModuleStatus, detail?: strin
 export type ProgressCallback = (pct: number, label: string) => void;
 export type DataCallback = (state: Partial<ScanState>) => void;
 
+// Per-scan runtime config — set by runFullScan, read by safeRun.
+let RUNTIME_TIMEOUT_MULT = 1.0;
+let RUNTIME_JITTER = 0;
+export function getRuntimeJitter() { return RUNTIME_JITTER; }
+
 export async function safeRun<T>(name: string, fn: () => Promise<T>, onModule: ModuleCallback, opts?: { retries?: number; timeout?: number }): Promise<T | null> {
   const maxRetries = opts?.retries ?? 1;
-  const timeout = opts?.timeout ?? 60000;
+  const timeout = Math.round((opts?.timeout ?? 60000) * RUNTIME_TIMEOUT_MULT);
   onModule(name, 'running');
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
+      if (RUNTIME_JITTER > 0) await sleep(Math.floor(Math.random() * RUNTIME_JITTER));
       const result = await Promise.race([fn(), new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))]);
       onModule(name, 'done');
       return result;
@@ -2248,7 +2254,10 @@ export async function runFullScan(
   onModule: ModuleCallback,
   onProgress: ProgressCallback,
   onData: DataCallback,
+  profileCfg?: { timeoutMultiplier?: number; jitterMs?: number; concurrency?: number },
 ) {
+  RUNTIME_TIMEOUT_MULT = profileCfg?.timeoutMultiplier ?? 1.0;
+  RUNTIME_JITTER = profileCfg?.jitterMs ?? 0;
   const state = createScanState();
   state.domain = domain;
   state.scanning = true;

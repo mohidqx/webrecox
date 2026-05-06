@@ -16,6 +16,10 @@ Each script is self-contained — only `requests` is required for HTTP-based too
 | `secret_scan.py` | secrets          | Regex-scan a JS/text file for AWS / GitHub / Stripe / JWT secrets |
 | `cors_check.py`  | cors             | Reflective Origin / wildcard / null-origin CORS tester |
 | `nuclei_targets.py` | nuclei        | Take a subdomain list and emit a clean nuclei target file |
+| `cloud_enum.py`  | cloud            | Public-cloud bucket/blob enumerator (S3, Azure, GCS, DO) |
+| `smuggler.py`    | vuln             | HTTP request-smuggling detector (CL.TE / TE.CL / TE.TE) |
+| `nosqlmap.py`    | injection        | NoSQL injection probe (Mongo operators + JS payloads) |
+| `model_stealing.py` | ai            | ML/AI model exposure + prompt-injection echo probe |
 
 ## Usage
 

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, Copy, Check, Star, Download, ExternalLink, Microscope, X, Zap, Filter as FilterIcon, Share2, Upload, FileCode2 } from 'lucide-react';
+import { Search, Copy, Check, Star, Download, ExternalLink, Microscope, X, Zap, Filter as FilterIcon, Share2, Upload, FileCode2, Plus, Trash2 } from 'lucide-react';
 import { ONELINERS_DATA, SECTION_NAMES, CATEGORIES, MODULE_LINKS } from '@/data/onelinersData';
 import { analyzeJS, aggregateAnalyses, JSAnalysisResult, JSAnalysisFinding, Severity, SEV_ORDER } from '@/lib/jsAnalyzer';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,6 +33,25 @@ const Oneliners = () => {
   const [jsResults, setJsResults] = useState<JSAnalysisResult[] | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [target, setTarget] = useState('example.com');
+  const [customs, setCustoms] = useState<{c:string;n:string;d:string;t:string[];q:string;custom:true}[]>(() => {
+    try { return JSON.parse(localStorage.getItem('webrecox-custom-oneliners') || '[]'); } catch { return []; }
+  });
+  const [showAddCustom, setShowAddCustom] = useState(false);
+  const [newCustom, setNewCustom] = useState({ c: 'subdomain', n: '', d: '', t: 'bash', q: '' });
+
+  const saveCustoms = (list: typeof customs) => {
+    setCustoms(list);
+    try { localStorage.setItem('webrecox-custom-oneliners', JSON.stringify(list)); } catch { /* */ }
+  };
+  const addCustom = () => {
+    if (!newCustom.n.trim() || !newCustom.q.trim()) { toast.error('Name and command required'); return; }
+    const entry = { c: newCustom.c, n: newCustom.n.trim(), d: newCustom.d.trim() || 'Custom oneliner', t: newCustom.t.split(',').map(x => x.trim()).filter(Boolean), q: newCustom.q.trim(), custom: true as const };
+    saveCustoms([entry, ...customs]);
+    setNewCustom({ c: 'subdomain', n: '', d: '', t: 'bash', q: '' });
+    setShowAddCustom(false);
+    toast.success('Custom oneliner saved');
+  };
+  const deleteCustom = (idx: number) => { saveCustoms(customs.filter((_, i) => i !== idx)); toast.success('Removed'); };
 
   // ── Load favorites + shared view from URL ──
   useEffect(() => {
@@ -77,23 +96,25 @@ const Oneliners = () => {
     });
   };
 
+  const ALL_DATA = useMemo(() => [...customs.map((c, i) => ({ ...c, _customIdx: i })), ...ONELINERS_DATA], [customs]);
+
   const allTags = useMemo(() => {
     const s = new Set<string>();
-    ONELINERS_DATA.forEach(c => c.t.forEach(t => s.add(t)));
+    ALL_DATA.forEach(c => c.t.forEach(t => s.add(t)));
     return [...s];
-  }, []);
+  }, [ALL_DATA]);
 
   const filtered = useMemo(() => {
-    return ONELINERS_DATA.filter((cmd, i) => {
-      const id = `${cmd.c}-${i}`;
+    return ALL_DATA.filter((cmd, i) => {
+      const id = (cmd as any).custom ? `custom-${(cmd as any)._customIdx}` : `${cmd.c}-${ONELINERS_DATA.indexOf(cmd as any)}`;
       const catMatch = category === 'all' || cmd.c === category;
       const tagMatch = tagFilter === 'all' || cmd.t.includes(tagFilter);
       const favMatch = !showFavs || favs.has(id);
       const q = search.toLowerCase();
       const searchMatch = !q || (cmd.n + ' ' + cmd.d + ' ' + cmd.q + ' ' + cmd.c).toLowerCase().includes(q);
       return catMatch && tagMatch && favMatch && searchMatch;
-    }).map((cmd) => ({ cmd, id: `${cmd.c}-${ONELINERS_DATA.indexOf(cmd)}` }));
-  }, [search, category, tagFilter, showFavs, favs]);
+    }).map((cmd) => ({ cmd, id: (cmd as any).custom ? `custom-${(cmd as any)._customIdx}` : `${cmd.c}-${ONELINERS_DATA.indexOf(cmd as any)}` }));
+  }, [search, category, tagFilter, showFavs, favs, ALL_DATA]);
 
   const grouped = useMemo(() => {
     const g: Record<string, typeof filtered> = {};
@@ -226,6 +247,10 @@ const Oneliners = () => {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[hsl(var(--purple))]/30 bg-[hsl(var(--purple))]/8 text-[hsl(var(--purple))] text-[10.5px] font-semibold hover:bg-[hsl(var(--purple))]/15 transition-colors">
               <Microscope size={11} /> JS Analyzer
             </button>
+            <button onClick={() => setShowAddCustom(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-primary/30 bg-primary/8 text-primary text-[10.5px] font-semibold hover:bg-primary/15 transition-colors">
+              <Plus size={11} /> Add
+            </button>
             <button onClick={shareView}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[hsl(var(--green))]/25 bg-[hsl(var(--green))]/8 text-[hsl(var(--green))] text-[10.5px] font-semibold hover:bg-[hsl(var(--green))]/15 transition-colors">
               <Share2 size={11} /> Share
@@ -342,11 +367,17 @@ const Oneliners = () => {
                           <Star size={11} fill={isFav ? 'currentColor' : 'none'} />
                         </button>
                         <span className="text-[12px] font-semibold text-foreground">{cmd.n}</span>
+                        {(cmd as any).custom && <span className="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/15 text-primary border border-primary/30">custom</span>}
                         <span className="text-[10px] text-muted-foreground font-mono">— {cmd.d}</span>
-                        <div className="ml-auto flex gap-1">
+                        <div className="ml-auto flex gap-1 items-center">
                           {cmd.t.map(t => (
                             <span key={t} className={`px-1.5 py-0.5 rounded text-[8px] font-mono border ${TAG_COLORS[t] || TAG_COLORS.bash}`}>{t}</span>
                           ))}
+                          {(cmd as any).custom && (
+                            <button onClick={() => deleteCustom((cmd as any)._customIdx)} title="Delete custom" className="p-1 rounded hover:bg-destructive/15 text-destructive">
+                              <Trash2 size={10} />
+                            </button>
+                          )}
                         </div>
                       </div>
                       <div className="px-3 pb-2.5">
@@ -372,6 +403,38 @@ const Oneliners = () => {
       <footer className="border-t border-primary/10 py-6 text-center font-mono text-[10px] text-muted-foreground mt-8">
         © 2026 <span className="text-primary">WebRecox</span> by <a href="https://teamcyberops.vercel.app" target="_blank" rel="noreferrer" className="text-primary no-underline">TeamCyberOps</a> — for authorised security testing only.
       </footer>
+
+      {/* Add Custom Oneliner Modal */}
+      {showAddCustom && (
+        <div className="fixed inset-0 z-[210] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowAddCustom(false)}>
+          <div className="bg-card border border-primary/30 rounded-[14px] w-full max-w-[520px] p-5 flex flex-col gap-3" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-2">
+              <Plus size={14} className="text-primary" />
+              <span className="text-[13px] font-bold">Add Custom Oneliner</span>
+              <button onClick={() => setShowAddCustom(false)} className="ml-auto text-muted-foreground hover:text-foreground"><X size={14} /></button>
+            </div>
+            <input value={newCustom.n} onChange={e => setNewCustom(s => ({ ...s, n: e.target.value }))} placeholder="Name (e.g. My Subfinder)"
+              className="px-3 py-2 bg-white/[0.04] border border-border rounded-md text-[12px] focus:outline-none focus:border-primary/40" />
+            <input value={newCustom.d} onChange={e => setNewCustom(s => ({ ...s, d: e.target.value }))} placeholder="Description"
+              className="px-3 py-2 bg-white/[0.04] border border-border rounded-md text-[12px] focus:outline-none focus:border-primary/40" />
+            <div className="flex gap-2">
+              <select value={newCustom.c} onChange={e => setNewCustom(s => ({ ...s, c: e.target.value }))}
+                className="flex-1 px-3 py-2 bg-white/[0.04] border border-border rounded-md text-[12px] focus:outline-none focus:border-primary/40">
+                {CATEGORIES.map(c => <option key={c} value={c}>{SECTION_NAMES[c] || c}</option>)}
+              </select>
+              <input value={newCustom.t} onChange={e => setNewCustom(s => ({ ...s, t: e.target.value }))} placeholder="tags (bash,py)"
+                className="w-[140px] px-3 py-2 bg-white/[0.04] border border-border rounded-md text-[12px] focus:outline-none focus:border-primary/40" />
+            </div>
+            <textarea value={newCustom.q} onChange={e => setNewCustom(s => ({ ...s, q: e.target.value }))}
+              placeholder="Command — use example.com as placeholder (auto-replaced with target)"
+              className="px-3 py-2 bg-black/55 border border-border rounded-md text-[11px] font-mono h-[120px] focus:outline-none focus:border-primary/40 resize-none" />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setShowAddCustom(false)} className="px-3 py-1.5 rounded-md border border-border text-[11px]">Cancel</button>
+              <button onClick={addCustom} className="px-4 py-1.5 rounded-md bg-primary text-primary-foreground text-[11px] font-bold">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* JS Analyzer Modal — AST-powered */}
       {showAnalyzer && (
