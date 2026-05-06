@@ -16,7 +16,7 @@ PAYLOADS = {
 def probe(host, port, use_tls, name, payload, timeout):
     sock = socket.create_connection((host, port), timeout=timeout)
     if use_tls:
-        ctx = ssl.create_default_context(); ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
+        ctx = ssl.create_default_context(); ctx.minimum_version = ssl.TLSVersion.TLSv1_2; ctx.check_hostname=False; ctx.verify_mode=ssl.CERT_NONE
         sock = ctx.wrap_socket(sock, server_hostname=host)
     sock.sendall(payload.replace(b"{host}", host.encode()))
     start = time.time()
