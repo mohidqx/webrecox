@@ -10,7 +10,7 @@ import {
 import { playScanStart, playScanComplete, playModuleDone, playModuleError, playAlert, playFindingCritical } from '@/lib/soundUtils';
 import JSAnalyzerModal from '@/components/JSAnalyzerModal';
 import ProxySettingsPanel from '@/components/ProxySettingsPanel';
-import { applyProfileToSources, type ProfileId } from '@/lib/scanProfiles';
+import { applyProfileToSources, PROFILES, type ProfileId } from '@/lib/scanProfiles';
 const ThreatMap = lazy(() => import('@/components/ThreatMap'));
 
 const HISTORY_PASSPHRASE = 'WebRecox-TeamCyberOps';
@@ -253,8 +253,16 @@ const Index = () => {
     setShowCachedPrompt(false);
   };
 
+  const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 40);
+  const [scanSlug, setScanSlug] = useState<string | null>(null);
+
   const saveScanToDb = async (state: ScanState) => {
-    await supabase.from('scan_results').insert({ domain: state.domain.toLowerCase().trim(), scan_data: state as any, scan_type: profile });
+    const slug = `${slugify(state.domain || 'scan')}-${Math.random().toString(36).slice(2, 7)}`;
+    const { data } = await supabase.from('scan_results').insert({ domain: state.domain.toLowerCase().trim(), scan_data: state as any, scan_type: profile }).select('id').single();
+    setScanSlug(slug);
+    if (data?.id) {
+      try { window.history.replaceState(null, '', `/?scan=${slug}&id=${data.id}`); } catch { /* */ }
+    }
     loadHistory();
   };
 
@@ -281,6 +289,8 @@ const Index = () => {
     toast.info(`🔍 Starting scan for ${d}`, { duration: 3000 });
     try {
       const effectiveSources = applyProfileToSources(profile as ProfileId, sources);
+      const pCfg = PROFILES[profile as ProfileId];
+      toast.info(`Profile: ${pCfg.label} · ${Object.values(effectiveSources).filter(Boolean).length} sources active`, { duration: 2500 });
       const result = await runFullScan(d, effectiveSources,
         (name, status, detail) => {
           setModules(prev => ({ ...prev, [name]: { status, detail } }));
@@ -289,6 +299,7 @@ const Index = () => {
         },
         (pct, label) => { setProgress(pct); setProgressLabel(label); },
         (partial) => { setScanState(prev => ({ ...prev, ...partial })); },
+        { timeoutMultiplier: pCfg.timeoutMultiplier, jitterMs: pCfg.jitterMs, concurrency: pCfg.concurrency },
       );
       // Notify critical findings
       if (result.secrets.length > 0) { toast.warning(`⚠ ${result.secrets.length} secrets found!`, { duration: 5000 }); if (soundEnabled) playFindingCritical(); }
@@ -483,7 +494,7 @@ const Index = () => {
             BugHunting OSINT Platform
           </div>
           <h1 className="hero-gradient text-[clamp(2.4rem,6vw,4.5rem)] font-bold leading-[1.05] tracking-[-0.04em] mb-3">
-            ☣︎ WebRecox 🗡<br />Recon Engine v15
+            ☣︎ WebRecox 🗡
           </h1>
           <div className="flex items-center justify-center gap-2 flex-wrap mb-4">
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary/10 border border-primary/30 text-primary">by TeamCyberOps</span>
