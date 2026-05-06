@@ -1,4 +1,4 @@
-# Contributing to TeamCyberOps Recon
+# Contributing to WebRecox
 
 Thanks for your interest in contributing! This project welcomes pull requests
 that add new OSINT sources, scanning modules, UI improvements, or bug fixes.
@@ -6,8 +6,8 @@ that add new OSINT sources, scanning modules, UI improvements, or bug fixes.
 ## Quick start
 
 ```bash
-git clone https://github.com/mohidqx/TeamCyberOps-Recon.git
-cd TeamCyberOps-Recon
+git clone https://github.com/mohidqx/webrecox.git
+cd webrecox
 npm install
 npm run dev
 ```
