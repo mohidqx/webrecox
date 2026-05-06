@@ -1,4 +1,3 @@
-# ☣ WebRecox — TeamCyberOps Recon Engine v15
 
 > [!IMPORTANT]
 > **Browser-based OSINT & Bug-Bounty Recon Platform**
