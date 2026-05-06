@@ -102,17 +102,25 @@ const Oneliners = () => {
     return [...s];
   }, []);
 
+  const ALL_DATA = useMemo(() => [...customs.map((c, i) => ({ ...c, _customIdx: i })), ...ONELINERS_DATA], [customs]);
+
+  const allTags = useMemo(() => {
+    const s = new Set<string>();
+    ALL_DATA.forEach(c => c.t.forEach(t => s.add(t)));
+    return [...s];
+  }, [ALL_DATA]);
+
   const filtered = useMemo(() => {
-    return ONELINERS_DATA.filter((cmd, i) => {
-      const id = `${cmd.c}-${i}`;
+    return ALL_DATA.filter((cmd, i) => {
+      const id = (cmd as any).custom ? `custom-${(cmd as any)._customIdx}` : `${cmd.c}-${ONELINERS_DATA.indexOf(cmd as any)}`;
       const catMatch = category === 'all' || cmd.c === category;
       const tagMatch = tagFilter === 'all' || cmd.t.includes(tagFilter);
       const favMatch = !showFavs || favs.has(id);
       const q = search.toLowerCase();
       const searchMatch = !q || (cmd.n + ' ' + cmd.d + ' ' + cmd.q + ' ' + cmd.c).toLowerCase().includes(q);
       return catMatch && tagMatch && favMatch && searchMatch;
-    }).map((cmd) => ({ cmd, id: `${cmd.c}-${ONELINERS_DATA.indexOf(cmd)}` }));
-  }, [search, category, tagFilter, showFavs, favs]);
+    }).map((cmd) => ({ cmd, id: (cmd as any).custom ? `custom-${(cmd as any)._customIdx}` : `${cmd.c}-${ONELINERS_DATA.indexOf(cmd as any)}` }));
+  }, [search, category, tagFilter, showFavs, favs, ALL_DATA]);
 
   const grouped = useMemo(() => {
     const g: Record<string, typeof filtered> = {};
