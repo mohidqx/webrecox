@@ -247,6 +247,10 @@ const Oneliners = () => {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[hsl(var(--purple))]/30 bg-[hsl(var(--purple))]/8 text-[hsl(var(--purple))] text-[10.5px] font-semibold hover:bg-[hsl(var(--purple))]/15 transition-colors">
               <Microscope size={11} /> JS Analyzer
             </button>
+            <button onClick={() => setShowAddCustom(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-primary/30 bg-primary/8 text-primary text-[10.5px] font-semibold hover:bg-primary/15 transition-colors">
+              <Plus size={11} /> Add
+            </button>
             <button onClick={shareView}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[hsl(var(--green))]/25 bg-[hsl(var(--green))]/8 text-[hsl(var(--green))] text-[10.5px] font-semibold hover:bg-[hsl(var(--green))]/15 transition-colors">
               <Share2 size={11} /> Share
