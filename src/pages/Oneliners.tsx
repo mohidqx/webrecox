@@ -404,6 +404,38 @@ const Oneliners = () => {
         © 2026 <span className="text-primary">WebRecox</span> by <a href="https://teamcyberops.vercel.app" target="_blank" rel="noreferrer" className="text-primary no-underline">TeamCyberOps</a> — for authorised security testing only.
       </footer>
 
+      {/* Add Custom Oneliner Modal */}
+      {showAddCustom && (
+        <div className="fixed inset-0 z-[210] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowAddCustom(false)}>
+          <div className="bg-card border border-primary/30 rounded-[14px] w-full max-w-[520px] p-5 flex flex-col gap-3" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-2">
+              <Plus size={14} className="text-primary" />
+              <span className="text-[13px] font-bold">Add Custom Oneliner</span>
+              <button onClick={() => setShowAddCustom(false)} className="ml-auto text-muted-foreground hover:text-foreground"><X size={14} /></button>
+            </div>
+            <input value={newCustom.n} onChange={e => setNewCustom(s => ({ ...s, n: e.target.value }))} placeholder="Name (e.g. My Subfinder)"
+              className="px-3 py-2 bg-white/[0.04] border border-border rounded-md text-[12px] focus:outline-none focus:border-primary/40" />
+            <input value={newCustom.d} onChange={e => setNewCustom(s => ({ ...s, d: e.target.value }))} placeholder="Description"
+              className="px-3 py-2 bg-white/[0.04] border border-border rounded-md text-[12px] focus:outline-none focus:border-primary/40" />
+            <div className="flex gap-2">
+              <select value={newCustom.c} onChange={e => setNewCustom(s => ({ ...s, c: e.target.value }))}
+                className="flex-1 px-3 py-2 bg-white/[0.04] border border-border rounded-md text-[12px] focus:outline-none focus:border-primary/40">
+                {CATEGORIES.map(c => <option key={c} value={c}>{SECTION_NAMES[c] || c}</option>)}
+              </select>
+              <input value={newCustom.t} onChange={e => setNewCustom(s => ({ ...s, t: e.target.value }))} placeholder="tags (bash,py)"
+                className="w-[140px] px-3 py-2 bg-white/[0.04] border border-border rounded-md text-[12px] focus:outline-none focus:border-primary/40" />
+            </div>
+            <textarea value={newCustom.q} onChange={e => setNewCustom(s => ({ ...s, q: e.target.value }))}
+              placeholder="Command — use example.com as placeholder (auto-replaced with target)"
+              className="px-3 py-2 bg-black/55 border border-border rounded-md text-[11px] font-mono h-[120px] focus:outline-none focus:border-primary/40 resize-none" />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setShowAddCustom(false)} className="px-3 py-1.5 rounded-md border border-border text-[11px]">Cancel</button>
+              <button onClick={addCustom} className="px-4 py-1.5 rounded-md bg-primary text-primary-foreground text-[11px] font-bold">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* JS Analyzer Modal — AST-powered */}
       {showAnalyzer && (
         <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowAnalyzer(false)}>
