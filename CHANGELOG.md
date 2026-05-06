@@ -3,6 +3,21 @@
 All notable changes to **WebRecox** (TeamCyberOps Recon Engine) are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org).
 
+## [15.2.0] — 2026-05-06
+
+### Added
+- 🐍 **Four advanced Python tools** added to `tools/`:
+  - `cloud_enum.py` — multi-cloud bucket/blob enumerator (S3, Azure Blob/Web/File, GCS, DO Spaces).
+  - `smuggler.py` — HTTP request-smuggling detector (CL.TE / TE.CL / TE.TE timing heuristics).
+  - `nosqlmap.py` — NoSQL injection probe (Mongo `$ne`/`$gt`/`$regex`/`$where` + JS operators).
+  - `model_stealing.py` — ML/AI model exposure detector + prompt-injection echo probe.
+- ✏ **Custom Oneliners** — Oneliners page now has an **Add** button to author your own commands (name, description, category, tags, command). Saved in localStorage, shown alongside built-ins with a "custom" badge and per-row delete.
+- 🪪 **Slug-style scan IDs** — every saved/loaded scan derives a readable slug (`tesla-com-x9k4q`) and the URL updates to `/?scan=<slug>&id=<uuid>` for easy reference.
+
+### Fixed
+- 🛠 **Profile selector now applies runtime settings** — `runFullScan` accepts profile config and `safeRun` honours `timeoutMultiplier` + stealth `jitterMs`. Quick is genuinely fast, Stealth is genuinely slow & jittered.
+- 🪶 **Hero text** — removed "Recon Engine v15" suffix; hero now shows only `☣︎ WebRecox 🗡` per branding request.
+
 ## [15.1.0] — 2026-05-04
 
 ### Added
