@@ -96,12 +96,6 @@ const Oneliners = () => {
     });
   };
 
-  const allTags = useMemo(() => {
-    const s = new Set<string>();
-    ONELINERS_DATA.forEach(c => c.t.forEach(t => s.add(t)));
-    return [...s];
-  }, []);
-
   const ALL_DATA = useMemo(() => [...customs.map((c, i) => ({ ...c, _customIdx: i })), ...ONELINERS_DATA], [customs]);
 
   const allTags = useMemo(() => {
