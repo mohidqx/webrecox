@@ -367,11 +367,17 @@ const Oneliners = () => {
                           <Star size={11} fill={isFav ? 'currentColor' : 'none'} />
                         </button>
                         <span className="text-[12px] font-semibold text-foreground">{cmd.n}</span>
+                        {(cmd as any).custom && <span className="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/15 text-primary border border-primary/30">custom</span>}
                         <span className="text-[10px] text-muted-foreground font-mono">— {cmd.d}</span>
-                        <div className="ml-auto flex gap-1">
+                        <div className="ml-auto flex gap-1 items-center">
                           {cmd.t.map(t => (
                             <span key={t} className={`px-1.5 py-0.5 rounded text-[8px] font-mono border ${TAG_COLORS[t] || TAG_COLORS.bash}`}>{t}</span>
                           ))}
+                          {(cmd as any).custom && (
+                            <button onClick={() => deleteCustom((cmd as any)._customIdx)} title="Delete custom" className="p-1 rounded hover:bg-destructive/15 text-destructive">
+                              <Trash2 size={10} />
+                            </button>
+                          )}
                         </div>
                       </div>
                       <div className="px-3 pb-2.5">
