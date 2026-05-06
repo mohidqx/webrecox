@@ -14,7 +14,7 @@
 
 ---
 
-> [!CRUCIAL]
+> [!WARNING]
 > ✅ **Authorised security testing only.** Always have written permission before scanning any target.
 
 ---
