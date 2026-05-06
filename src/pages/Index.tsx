@@ -253,8 +253,16 @@ const Index = () => {
     setShowCachedPrompt(false);
   };
 
+  const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 40);
+  const [scanSlug, setScanSlug] = useState<string | null>(null);
+
   const saveScanToDb = async (state: ScanState) => {
-    await supabase.from('scan_results').insert({ domain: state.domain.toLowerCase().trim(), scan_data: state as any, scan_type: profile });
+    const slug = `${slugify(state.domain || 'scan')}-${Math.random().toString(36).slice(2, 7)}`;
+    const { data } = await supabase.from('scan_results').insert({ domain: state.domain.toLowerCase().trim(), scan_data: state as any, scan_type: profile }).select('id').single();
+    setScanSlug(slug);
+    if (data?.id) {
+      try { window.history.replaceState(null, '', `/?scan=${slug}&id=${data.id}`); } catch { /* */ }
+    }
     loadHistory();
   };
 
