@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, Copy, Check, Star, Download, ExternalLink, Microscope, X, Zap, Filter as FilterIcon, Share2, Upload, FileCode2 } from 'lucide-react';
+import { Search, Copy, Check, Star, Download, ExternalLink, Microscope, X, Zap, Filter as FilterIcon, Share2, Upload, FileCode2, Plus, Trash2 } from 'lucide-react';
 import { ONELINERS_DATA, SECTION_NAMES, CATEGORIES, MODULE_LINKS } from '@/data/onelinersData';
 import { analyzeJS, aggregateAnalyses, JSAnalysisResult, JSAnalysisFinding, Severity, SEV_ORDER } from '@/lib/jsAnalyzer';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,6 +33,25 @@ const Oneliners = () => {
   const [jsResults, setJsResults] = useState<JSAnalysisResult[] | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [target, setTarget] = useState('example.com');
+  const [customs, setCustoms] = useState<{c:string;n:string;d:string;t:string[];q:string;custom:true}[]>(() => {
+    try { return JSON.parse(localStorage.getItem('webrecox-custom-oneliners') || '[]'); } catch { return []; }
+  });
+  const [showAddCustom, setShowAddCustom] = useState(false);
+  const [newCustom, setNewCustom] = useState({ c: 'subdomain', n: '', d: '', t: 'bash', q: '' });
+
+  const saveCustoms = (list: typeof customs) => {
+    setCustoms(list);
+    try { localStorage.setItem('webrecox-custom-oneliners', JSON.stringify(list)); } catch { /* */ }
+  };
+  const addCustom = () => {
+    if (!newCustom.n.trim() || !newCustom.q.trim()) { toast.error('Name and command required'); return; }
+    const entry = { c: newCustom.c, n: newCustom.n.trim(), d: newCustom.d.trim() || 'Custom oneliner', t: newCustom.t.split(',').map(x => x.trim()).filter(Boolean), q: newCustom.q.trim(), custom: true as const };
+    saveCustoms([entry, ...customs]);
+    setNewCustom({ c: 'subdomain', n: '', d: '', t: 'bash', q: '' });
+    setShowAddCustom(false);
+    toast.success('Custom oneliner saved');
+  };
+  const deleteCustom = (idx: number) => { saveCustoms(customs.filter((_, i) => i !== idx)); toast.success('Removed'); };
 
   // ── Load favorites + shared view from URL ──
   useEffect(() => {
