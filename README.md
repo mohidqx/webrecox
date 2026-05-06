@@ -1,11 +1,12 @@
 # ☣ WebRecox — TeamCyberOps Recon Engine v15
 
+> [!IMPORTANT]
 > **Browser-based OSINT & Bug-Bounty Recon Platform**
 > React 18 · TypeScript · Vite · Cloud-Backed · 50+ OSINT sources · 170+ Oneliners · **NO LIMITS**
 
-![banner](https://github.com/user-attachments/assets/f94d873f-ebb9-43be-8a49-8522ac82d0ad)
+![banner](https://github.com/user-attachments/assets/315e25c2-135c-4f4c-9ead-2008ab28d592)
 
-**By [@mohidqx](https://github.com/mohidqx) · [TeamCyberOps](https://teamcyberops.vercel.app)**
+**By [@mohidqx](https://github.com/mohidqx) · [TeamCyberOps](https://teamcyberops.vercel.app) · [WebRecox](https://webrecox.vercel.app)**
 
 [![CI](https://github.com/mohidqx/TeamCyberOps-Recon/actions/workflows/ci.yml/badge.svg)](https://github.com/mohidqx/TeamCyberOps-Recon/actions)
 ![License](https://img.shields.io/badge/license-MIT-amber)
@@ -13,17 +14,7 @@
 
 ---
 
-## ⚡ Quick Start
-
-```bash
-git clone https://github.com/mohidqx/TeamCyberOps-Recon.git
-cd TeamCyberOps-Recon
-npm install --legacy-peer-deps
-npm run dev
-```
-
-Open `http://localhost:5173`, enter a target domain (e.g. `tesla.com`), and press **`Ctrl + Enter`** to launch a scan.
-
+> [!INFO]
 > ✅ **Authorised security testing only.** Always have written permission before scanning any target.
 
 ---
