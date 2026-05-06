@@ -10,7 +10,7 @@ import {
 import { playScanStart, playScanComplete, playModuleDone, playModuleError, playAlert, playFindingCritical } from '@/lib/soundUtils';
 import JSAnalyzerModal from '@/components/JSAnalyzerModal';
 import ProxySettingsPanel from '@/components/ProxySettingsPanel';
-import { applyProfileToSources, type ProfileId } from '@/lib/scanProfiles';
+import { applyProfileToSources, PROFILES, type ProfileId } from '@/lib/scanProfiles';
 const ThreatMap = lazy(() => import('@/components/ThreatMap'));
 
 const HISTORY_PASSPHRASE = 'WebRecox-TeamCyberOps';
@@ -281,6 +281,8 @@ const Index = () => {
     toast.info(`🔍 Starting scan for ${d}`, { duration: 3000 });
     try {
       const effectiveSources = applyProfileToSources(profile as ProfileId, sources);
+      const pCfg = PROFILES[profile as ProfileId];
+      toast.info(`Profile: ${pCfg.label} · ${Object.values(effectiveSources).filter(Boolean).length} sources active`, { duration: 2500 });
       const result = await runFullScan(d, effectiveSources,
         (name, status, detail) => {
           setModules(prev => ({ ...prev, [name]: { status, detail } }));
@@ -289,6 +291,7 @@ const Index = () => {
         },
         (pct, label) => { setProgress(pct); setProgressLabel(label); },
         (partial) => { setScanState(prev => ({ ...prev, ...partial })); },
+        { timeoutMultiplier: pCfg.timeoutMultiplier, jitterMs: pCfg.jitterMs, concurrency: pCfg.concurrency },
       );
       // Notify critical findings
       if (result.secrets.length > 0) { toast.warning(`⚠ ${result.secrets.length} secrets found!`, { duration: 5000 }); if (soundEnabled) playFindingCritical(); }
