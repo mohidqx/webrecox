@@ -483,7 +483,7 @@ const Index = () => {
             BugHunting OSINT Platform
           </div>
           <h1 className="hero-gradient text-[clamp(2.4rem,6vw,4.5rem)] font-bold leading-[1.05] tracking-[-0.04em] mb-3">
-            ☣︎ WebRecox 🗡<br />Recon Engine v15
+            ☣︎ WebRecox 🗡
           </h1>
           <div className="flex items-center justify-center gap-2 flex-wrap mb-4">
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary/10 border border-primary/30 text-primary">by TeamCyberOps</span>
